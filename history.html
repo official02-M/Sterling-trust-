@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>History — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container">
+  <div class="page-head"><div><h1>Transaction history</h1><p>All your activity in one place.</p></div></div>
+
+  <div class="card card-tight mb-3">
+    <div class="field" style="margin-bottom:0;">
+      <label>Filter</label>
+      <select id="filter">
+        <option value="">All transactions</option>
+        <option value="in">Money in</option>
+        <option value="out">Money out</option>
+        <option value="internal_transfer">Internal transfers</option>
+        <option value="external_transfer">External transfers</option>
+        <option value="savings_lock">Savings locks</option>
+        <option value="move_money">Account moves</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tx-list" id="list">
+    <div class="stb-empty"><i class="fas fa-circle-notch fa-spin"></i><p>Loading…</p></div>
+  </div>
+</main>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+let uid = null, fromTx = [], toTx = [];
+
+stbBootstrapDrawer({
+  active: 'history',
+  onReady: (user) => { uid = user.uid; start(); }
+});
+
+function start() {
+  db.collection(COL.transactions).where('fromUid','==',uid).limit(100)
+    .onSnapshot(s => { fromTx=[]; s.forEach(d=>fromTx.push({id:d.id,...d.data()})); render(); });
+  db.collection(COL.transactions).where('toUid','==',uid).limit(100)
+    .onSnapshot(s => { toTx=[]; s.forEach(d=>toTx.push({id:d.id,...d.data()})); render(); });
+  document.getElementById('filter').addEventListener('change', render);
+}
+
+function render() {
+  const el = document.getElementById('list');
+  const filter = document.getElementById('filter').value;
+  const merged = {};
+  [...fromTx, ...toTx].forEach(t => merged[t.id] = t);
+  let list = Object.values(merged).sort((a,b)=>
+    (b.createdAt?.toDate?.()?.getTime?.()||0) - (a.createdAt?.toDate?.()?.getTime?.()||0));
+
+  if (filter === 'in')  list = list.filter(t => t.toUid === uid);
+  else if (filter === 'out') list = list.filter(t => t.fromUid === uid);
+  else if (filter) list = list.filter(t => t.type === filter);
+
+  if (!list.length) { el.innerHTML = `<div class="stb-empty"><i class="fas fa-receipt"></i><p>No matching transactions.</p></div>`; return; }
+
+  el.innerHTML = list.map(t => {
+    const out = t.fromUid === uid;
+    const cls = out ? 'out' : 'in';
+    const icon = out ? 'fa-arrow-up' : 'fa-arrow-down';
+    const sign = out ? '−' : '+';
+    const title = out
+      ? `To ${t.toAccountName || t.toBank || '—'}`
+      : `From ${t.fromAccountName || '—'}`;
+    const meta = `${t.reference || ''} · ${stbDate(t.createdAt,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+    return `
+      <div class="tx-row">
+        <div class="tx-icon ${cls}"><i class="fas ${icon}"></i></div>
+        <div class="tx-main">
+          <div class="tx-title">${title} <span class="badge ${t.status==='completed'?'completed':t.status}">${t.status||''}</span></div>
+          <div class="tx-meta">${meta}</div>
+        </div>
+        <div class="tx-amt ${out?'neg':'pos'}">${sign}${stbMoney(t.amount)}</div>
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

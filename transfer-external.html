@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>External Transfer — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="max-width:600px; padding-bottom: 100px;">
+
+  <div class="page-head">
+    <div>
+      <h1>External Transfer</h1>
+      <p>Send funds securely to another bank.</p>
+    </div>
+  </div>
+
+  <!-- Available Balance -->
+  <div class="wizard-header">
+    <div>
+      <div class="lbl">Available to send</div>
+      <div class="val" id="availBal">$0.00</div>
+    </div>
+    <i class="fas fa-building-columns" style="font-size:1.5rem; color:var(--blue);"></i>
+  </div>
+
+  <!-- MAIN FORM -->
+  <div class="card">
+    <div class="form-alert" id="alert"></div>
+    <form id="transferForm">
+      <div class="field">
+        <label>From Account</label>
+        <select id="fromAcct" required></select>
+      </div>
+      <div class="field">
+        <label>Recipient Bank Name</label>
+        <input id="bankName" placeholder="e.g. Chase, Bank of America" required>
+      </div>
+      <div class="field">
+        <label>Recipient Full Legal Name</label>
+        <input id="toName" placeholder="As it appears on their bank account" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Routing Number (ABA)</label>
+          <input id="routingNum" inputmode="numeric" maxlength="9" placeholder="9 digits" required>
+        </div>
+        <div class="field">
+          <label>Account Number</label>
+          <input id="toAcct" placeholder="Account number" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Amount (USD)</label>
+        <input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+      </div>
+      <div class="field">
+        <label>Note (Optional)</label>
+        <input id="note" maxlength="60" placeholder="What's it for?">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnReview">
+        Review Transfer <i class="fas fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- Trust & Security Grid -->
+  <div class="trust-grid">
+    <div class="trust-item">
+      <i class="fas fa-shield-halved"></i>
+      <div class="t-title">256-bit Encryption</div>
+      <div class="t-desc">Bank-grade protection for all your data.</div>
+    </div>
+    <div class="trust-item">
+      <i class="fas fa-clock"></i>
+      <div class="t-title">1-2 Business Days</div>
+      <div class="t-desc">Standard processing time for external banks.</div>
+    </div>
+    <div class="trust-item">
+      <i class="fas fa-magnifying-glass-dollar"></i>
+      <div class="t-title">Zero Fees</div>
+      <div class="t-desc">We cover the cost of your external transfers.</div>
+    </div>
+  </div>
+</main>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal-panel">
+    <button class="modal-close" id="reviewClose"><i class="fas fa-xmark"></i></button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Review Transfer</div>
+    <div class="modal-sub">Confirm the details before you continue.</div>
+    
+    <div class="review-box">
+      <div class="review-row"><span class="review-label">Bank</span><span class="review-val" id="rvBank">—</span></div>
+      <div class="review-row"><span class="review-label">Recipient</span><span class="review-val" id="rvName">—</span></div>
+      <div class="review-row"><span class="review-label">Routing No.</span><span class="review-val" id="rvRouting" style="font-family:monospace;">—</span></div>
+      <div class="review-row"><span class="review-label">Account No.</span><span class="review-val" id="rvAcct" style="font-family:monospace;">—</span></div>
+      <div class="review-row"><span class="review-label">Amount</span><span class="review-val" id="rvAmount">—</span></div>
+      <div class="review-row"><span class="review-label">Fee</span><span class="review-val">$0.00</span></div>
+    </div>
+    
+    <button class="btn btn-primary btn-block btn-lg" id="reviewContinue">
+      Confirm & Continue <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-panel">
+    <button class="modal-close" id="pinClose"><i class="fas fa-xmark"></i></button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Security PIN</div>
+    <div class="modal-sub">Enter your 4-digit transaction PIN.</div>
+    
+    <div class="pin-dots">
+      <div class="pin-dot"></div><div class="pin-dot"></div>
+      <div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    
+    <div class="keypad">
+      <button class="keypad-key" data-key="1">1</button><button class="keypad-key" data-key="2">2</button><button class="keypad-key" data-key="3">3</button>
+      <button class="keypad-key" data-key="4">4</button><button class="keypad-key" data-key="5">5</button><button class="keypad-key" data-key="6">6</button>
+      <button class="keypad-key" data-key="7">7</button><button class="keypad-key" data-key="8">8</button><button class="keypad-key" data-key="9">9</button>
+      <button class="keypad-key empty"></button><button class="keypad-key" data-key="0">0</button><button class="keypad-key" data-key="del"><i class="fas fa-delete-left"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- CODE MODAL -->
+<div class="modal-overlay" id="codeModal">
+  <div class="modal-panel">
+    <button class="modal-close" id="codeClose"><i class="fas fa-xmark"></i></button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Authorization Code</div>
+    <div class="modal-sub">Enter the code provided by Admin to authorize this transfer.</div>
+    
+    <div class="field">
+      <input type="text" id="codeInput" placeholder="e.g. STB-XXXXXX" style="text-transform:uppercase;text-align:center;font-family:ui-monospace,monospace;font-size:1.2rem;letter-spacing:.1em;font-weight:700;" maxlength="12" autocomplete="off" />
+    </div>
+    <div class="form-alert" id="codeAlert"></div>
+    <button class="btn btn-primary btn-block btn-lg" id="codeSubmit">
+      Authorize Transfer <i class="fas fa-shield-halved"></i>
+    </button>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <svg class="success-check" viewBox="0 0 52 52">
+    <circle cx="26" cy="26" r="24"/>
+    <path d="M14 27 L22 35 L38 19"/>
+  </svg>
+  <div class="success-title">Transfer Submitted</div>
+  <div class="success-sub" id="successSub">—</div>
+  <div class="success-amount" id="successAmount">—</div>
+  <div class="success-ref" id="successRef">—</div>
+  
+  <div class="success-actions">
+    <a href="dashboard.html" class="btn btn-primary btn-lg btn-block">Back to Dashboard</a>
+  </div>
+</div>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let me = null;
+let pending = null;
+let enteredPin = '';
+
+stbBootstrapDrawer({
+  active: 'external',
+  onReady: (user, data) => {
+    me = { uid: user.uid, data };
+    db.collection(COL.accounts).where('ownerId','==',user.uid).onSnapshot(snap => {
+      const sel = $('fromAcct'); sel.innerHTML = '';
+      snap.forEach(d => {
+        const a = d.data();
+        sel.insertAdjacentHTML('beforeend',
+          `<option value="${d.id}" data-bal="${a.balance}" data-name="${a.ownerName}">
+             ${a.type.toUpperCase()} · ••${(a.accountNumber||'').slice(-4)} (${stbMoney(a.balance)})
+           </option>`);
+      });
+      updateAvailBal();
+    });
+  }
+});
+
+$('fromAcct').addEventListener('change', updateAvailBal);
+function updateAvailBal() {
+  const sel = $('fromAcct');
+  if (sel.selectedOptions.length) $('availBal').textContent = stbMoney(sel.selectedOptions[0].dataset.bal);
+}
+
+function showErr(id, msg) {
+  const el = $(id);
+  el.textContent = msg;
+  el.className = 'form-alert show error';
+}
+
+// FORM SUBMIT -> REVIEW
+$('transferForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  $('alert').className = 'form-alert';
+
+  const fromId = $('fromAcct').value;
+  const bank = $('bankName').value.trim();
+  const toName = $('toName').value.trim();
+  const routing = $('routingNum').value.trim();
+  const toAcct = $('toAcct').value.trim();
+  const amt = Number($('amount').value);
+  const note = $('note').value.trim();
+  const selBal = Number($('fromAcct').selectedOptions[0]?.dataset.bal);
+  const fromName = $('fromAcct').selectedOptions[0]?.dataset.name;
+
+  if (!fromId) return showErr('alert', 'Select an account.');
+  if (!bank) return showErr('alert', 'Enter the bank name.');
+  if (!toName) return showErr('alert', 'Enter the recipient full legal name.');
+  if (routing.length !== 9 || isNaN(routing)) return showErr('alert', 'Routing number must be exactly 9 digits.');
+  if (!toAcct) return showErr('alert', 'Enter the account number.');
+  if (amt <= 0) return showErr('alert', 'Enter a valid amount.');
+  if (selBal < amt) return showErr('alert', 'Insufficient funds.');
+
+  pending = { fromId, bank, toName, routing, toAcct, amt, note, fromName };
+  
+  $('rvBank').textContent = bank;
+  $('rvName').textContent = toName;
+  $('rvRouting').textContent = routing;
+  $('rvAcct').textContent = toAcct;
+  $('rvAmount').textContent = stbMoney(amt);
+  
+  $('reviewModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+});
+
+// REVIEW CLOSE
+const closeReview = () => { $('reviewModal').classList.remove('show'); document.body.style.overflow = ''; };
+$('reviewClose').addEventListener('click', closeReview);
+$('reviewModal').addEventListener('click', e => { if (e.target.id === 'reviewModal') closeReview(); });
+
+// REVIEW CONTINUE -> PIN
+$('reviewContinue').addEventListener('click', () => {
+  $('reviewModal').classList.remove('show');
+  enteredPin = ''; updatePinDots();
+  $('pinModal').classList.add('show');
+});
+
+// PIN LOGIC
+const closePin = () => { $('pinModal').classList.remove('show'); document.body.style.overflow = ''; };
+$('pinClose').addEventListener('click', closePin);
+$('pinModal').addEventListener('click', e => { if (e.target.id === 'pinModal') closePin(); });
+
+document.querySelectorAll('.keypad-key[data-key]').forEach(k => {
+  k.addEventListener('click', () => {
+    const key = k.dataset.key;
+    if (key === 'del') enteredPin = enteredPin.slice(0, -1);
+    else if (enteredPin.length < 4) enteredPin += key;
+    updatePinDots();
+    if (enteredPin.length === 4) setTimeout(verifyPin, 220);
+  });
+});
+
+function updatePinDots() {
+  document.querySelectorAll('.pin-dot').forEach((d, i) => d.classList.toggle('filled', i < enteredPin.length));
+}
+
+async function verifyPin() {
+  const hash = await stbHashPin(enteredPin);
+  if (hash !== (me.data.pinHash||'')) {
+    enteredPin = ''; updatePinDots();
+    stbToast('Incorrect PIN.', 'error'); return;
+  }
+  $('pinModal').classList.remove('show');
+  $('codeInput').value = '';
+  $('codeAlert').className = 'form-alert';
+  $('codeModal').classList.add('show');
+  setTimeout(() => $('codeInput').focus(), 300);
+}
+
+// CODE LOGIC
+const closeCode = () => { $('codeModal').classList.remove('show'); document.body.style.overflow = ''; };
+$('codeClose').addEventListener('click', closeCode);
+$('codeModal').addEventListener('click', e => { if (e.target.id === 'codeModal') closeCode(); });
+
+$('codeSubmit').addEventListener('click', doTransfer);
+$('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') doTransfer(); });
+
+async function doTransfer() {
+  const code = $('codeInput').value.trim().toUpperCase();
+  $('codeAlert').className = 'form-alert';
+  if (!code) return showErr('codeAlert', 'Enter your transfer code.');
+
+  const btn = $('codeSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing…';
+
+  try {
+    // 1. Verify Code
+    const codeDoc = await db.collection(COL.transferCodes).doc(code).get();
+    if (!codeDoc.exists) throw new Error('Invalid transfer code.');
+    const codeData = codeDoc.data();
+    if (codeData.customerUid !== auth.currentUser.uid) throw new Error('This code does not belong to you.');
+    if (codeData.status !== 'active') throw new Error('This code has already been used.');
+    if (pending.amt > codeData.maxAmount) throw new Error(`Amount exceeds code limit (${stbMoney(codeData.maxAmount)}).`);
+
+    // 2. Deduct funds
+    const fromRef = db.collection(COL.accounts).doc(pending.fromId);
+    const fromDoc = await fromRef.get();
+    if (Number(fromDoc.data().balance) < pending.amt) throw new Error('Insufficient funds.');
+
+    await fromRef.update({ balance: FV.increment(-pending.amt) });
+    const refNum = stbGenReference();
+
+    // 3. Create Pending Transaction
+    await db.collection(COL.transactions).add({
+      reference: refNum,
+      type: 'external_transfer',
+      fromUid: auth.currentUser.uid,
+      fromAccountId: pending.fromId,
+      fromAccountNumber: fromDoc.data().accountNumber,
+      fromAccountName: fromDoc.data().ownerName,
+      toUid: null,
+      toAccountName: pending.toName,
+      toAccountNumber: pending.toAcct,
+      toBank: pending.bank,
+      toRouting: pending.routing,
+      amount: pending.amt, fee: 0, total: pending.amt,
+      description: pending.note || 'External transfer',
+      status: 'pending',
+      createdAt: FV.serverTimestamp()
+    });
+
+    // 4. Mark Code Used
+    await db.collection(COL.transferCodes).doc(code).update({
+      status: 'used',
+      usedBy: auth.currentUser.uid,
+      usedAt: FV.serverTimestamp(),
+      usedAmount: pending.amt
+    });
+
+    // 5. Notify
+    await stbNotify(auth.currentUser.uid, 'External Transfer Submitted', `${stbMoney(pending.amt)} to ${pending.toName} · ${pending.bank} is pending review.`, { type:'external-pending' });
+
+    // 6. Success Screen
+    $('codeModal').classList.remove('show');
+    $('successSub').textContent = 'To ' + pending.toName + ' · ' + pending.bank;
+    $('successAmount').textContent = stbMoney(pending.amt);
+    $('successRef').textContent = refNum;
+    $('successOverlay').classList.add('show');
+    fireConfetti();
+    document.body.style.overflow = 'hidden';
+
+  } catch (err) {
+    console.error(err);
+    showErr('codeAlert', err.message || 'Transfer failed.');
+    btn.disabled = false;
+    btn.innerHTML = 'Authorize Transfer <i class="fas fa-shield-halved"></i>';
+  }
+}
+
+function fireConfetti() {
+  const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    p.style.animationDelay = (Math.random() * 0.4) + 's';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+</script>
+</body>
+</html>

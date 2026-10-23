@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Help — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="max-width:760px;">
+  <div class="page-head"><div><h1>Help & support</h1><p>Answers to common questions.</p></div></div>
+
+  <div class="card mb-3">
+    <div class="section-title"><i class="fas fa-headset"></i> Contact us</div>
+    <p class="muted" style="font-size:.88rem;margin-bottom:14px;">
+      Reach out any time — we respond within 24 hours.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="mailto:support@sterlingbank.com"><i class="fas fa-envelope"></i> Email support</a>
+      <a class="btn btn-outline" href="tel:+18005550100"><i class="fas fa-phone"></i> +1 (800) 555-0100</a>
+    </div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-circle-question"></i> FAQ</div>
+
+  <details class="card card-tight mb-1"><summary style="cursor:pointer;font-weight:600;">How do I reset my transaction PIN?</summary><p class="muted mt-1" style="font-size:.85rem;">Go to Settings → Change PIN. You'll need your current PIN to set a new one.</p></details>
+  <details class="card card-tight mb-1"><summary style="cursor:pointer;font-weight:600;">Are transfers really instant?</summary><p class="muted mt-1" style="font-size:.85rem;">Transfers between Sterling accounts are instant. External bank transfers are typically reviewed and completed within 1 business day.</p></details>
+  <details class="card card-tight mb-1"><summary style="cursor:pointer;font-weight:600;">How does savings APY work?</summary><p class="muted mt-1" style="font-size:.85rem;">When you lock funds, we calculate simple interest at the displayed APY over the term. Your payout is credited at maturity.</p></details>
+  <details class="card card-tight mb-1"><summary style="cursor:pointer;font-weight:600;">Can I cancel a lock plan?</summary><p class="muted mt-1" style="font-size:.85rem;">Lock plans are fixed-term and can't be broken early. They automatically release to your savings account at maturity.</p></details>
+  <details class="card card-tight mb-1"><summary style="cursor:pointer;font-weight:600;">What if I forget my password?</summary><p class="muted mt-1" style="font-size:.85rem;">Use the "Forgot password" link on the sign-in page, or contact support and we'll help you recover access.</p></details>
+</main>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>stbBootstrapDrawer({ active: 'help' });</script>
+</body>
+</html>

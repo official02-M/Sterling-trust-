@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Move money — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="max-width:600px;">
+  <div class="page-head"><div><h1>Move between your accounts</h1><p>Instant, internal.</p></div></div>
+  <div class="card">
+    <div class="form-alert" id="err"></div>
+    <form id="mvForm">
+      <div class="field"><label>From</label><select id="fromAcct" required></select></div>
+      <div class="field"><label>To</label><select id="toAcct" required></select></div>
+      <div class="field"><label>Amount (USD)</label><input id="amount" type="number" min="0.01" step="0.01" required></div>
+      <div class="field"><label>Transaction PIN</label><input id="pin" inputmode="numeric" maxlength="4" pattern="\d{4}" required></div>
+      <button class="btn btn-primary btn-lg btn-block" id="btn"><i class="fas fa-shuffle"></i> Move money</button>
+    </form>
+  </div>
+</main>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let me = null, myAccounts = [];
+
+stbBootstrapDrawer({
+  active: 'move',
+  onReady: (user, data) => {
+    me = { uid:user.uid, data };
+    db.collection(COL.accounts).where('ownerId','==',user.uid).onSnapshot(snap => {
+      myAccounts = [];
+      snap.forEach(d => myAccounts.push({id:d.id, ...d.data()}));
+      const opts = myAccounts.map(a =>
+        `<option value="${a.id}">${a.type} · ••${(a.accountNumber||'').slice(-4)} — ${stbMoney(a.balance)}</option>`).join('');
+      $('fromAcct').innerHTML = opts;
+      $('toAcct').innerHTML = opts;
+    });
+  }
+});
+
+$('mvForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err=$('err'), btn=$('btn'); err.classList.remove('show');
+  const fromId = $('fromAcct').value;
+  const toId   = $('toAcct').value;
+  const amount = Number($('amount').value);
+  const pin    = $('pin').value.trim();
+
+  if (fromId === toId) return showErr('Choose two different accounts.');
+  if (amount <= 0) return showErr('Enter a valid amount.');
+  if (!/^\d{4}$/.test(pin)) return showErr('PIN must be 4 digits.');
+
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Moving…';
+
+  try {
+    if (await stbHashPin(pin) !== (me.data.pinHash||'')) throw new Error('Incorrect PIN.');
+
+    const fromRef = db.collection(COL.accounts).doc(fromId);
+    const toRef   = db.collection(COL.accounts).doc(toId);
+
+    await db.runTransaction(async tx => {
+      const fromDoc = await tx.get(fromRef);
+      const toDoc   = await tx.get(toRef);
+      if (!fromDoc.exists || !toDoc.exists) throw new Error('Account missing.');
+      const f = fromDoc.data();
+      if (Number(f.balance||0) < amount) throw new Error('Insufficient balance.');
+
+      tx.update(fromRef, { balance: FV.increment(-amount) });
+      tx.update(toRef,   { balance: FV.increment(amount) });
+
+      const tRef = db.collection(COL.transactions).doc();
+      tx.set(tRef, {
+        reference: stbGenReference(),
+        type: 'move_money',
+        fromUid: auth.currentUser.uid, fromAccountId: fromId,
+        fromAccountNumber: f.accountNumber, fromAccountName: f.ownerName,
+        toUid: auth.currentUser.uid, toAccountId: toId,
+        toAccountNumber: toDoc.data().accountNumber, toAccountName: toDoc.data().ownerName,
+        amount, fee: 0, total: amount,
+        description: 'Internal move',
+        status: 'completed',
+        createdAt: FV.serverTimestamp()
+      });
+    });
+
+    stbNotify(auth.currentUser.uid, 'Move complete', `${stbMoney(amount)} moved between accounts.`);
+    stbToast('Money moved.', 'success');
+    $('mvForm').reset();
+  } catch (ex) { console.error(ex); showErr(ex.message||'Failed.'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-shuffle"></i> Move money'; }
+});
+
+function showErr(m){ const e=$('err'); e.textContent=m; e.classList.add('show'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background:var(--bg);">
+
+<!-- LOGIN GATE -->
+<div id="gate" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px;">
+  <div class="card" style="width:100%;max-width:400px;">
+    <div class="stb-brand mb-3"><div class="stb-brand-mark"><i class="fas fa-shield-halved"></i></div><div><div class="stb-brand-text">Sterling<span>Admin</span></div><div class="stb-brand-sub">CONTROL PANEL</div></div></div>
+    <h2 style="font-size:1.3rem;margin-bottom:4px;color:var(--ink);">Admin sign in</h2>
+    <p class="muted mb-3" style="font-size:.85rem;">Use your Sterling Bank administrator account.</p>
+    <div class="form-alert" id="err"></div>
+    <form id="loginForm">
+      <div class="field"><label>Email</label><input id="email" type="email" required></div>
+      <div class="field"><label>Password</label><input id="password" type="password" required></div>
+      <button class="btn btn-primary btn-lg btn-block" id="btn"><i class="fas fa-lock-open"></i> Sign in</button>
+    </form>
+    <p class="center mt-3" style="font-size:.78rem;"><a href="index.html" style="color:var(--text-faint);"><i class="fas fa-arrow-left"></i> Back to website</a></p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="panel" style="display:none;">
+  <header class="stb-top">
+    <div class="stb-top-inner">
+      <div class="stb-brand"><div class="stb-brand-mark"><i class="fas fa-shield-halved"></i></div><div><div class="stb-brand-text">Sterling<span>Admin</span></div><div class="stb-brand-sub">CONTROL PANEL</div></div></div>
+      <div class="stb-top-actions"><button class="btn btn-outline btn-sm" id="signOut"><i class="fas fa-arrow-right-from-bracket"></i> Sign out</button></div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:24px;padding-bottom:60px;max-width:1000px;">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Customers</div><div class="stat-val" id="sUsers">—</div><div class="stat-sub" id="sPending">—</div></div>
+      <div class="stat"><div class="stat-label">Total deposits</div><div class="stat-val" id="sBal">—</div><div class="stat-sub">All accounts</div></div>
+      <div class="stat"><div class="stat-label">Transactions</div><div class="stat-val" id="sTx">—</div><div class="stat-sub">Logged</div></div>
+    </div>
+
+    <div class="adm-tabs">
+      <button class="adm-tab active" data-tab="users"><i class="fas fa-users"></i> Users</button>
+      <button class="adm-tab" data-tab="codes"><i class="fas fa-key"></i> Transfer Codes</button>
+      <button class="adm-tab" data-tab="tx"><i class="fas fa-receipt"></i> Transactions</button>
+    </div>
+
+    <!-- USERS TAB -->
+    <section class="adm-panel active" id="panel-users">
+      <input id="search" class="adm-search" placeholder="Search name or email…">
+      <div id="usersList"></div>
+    </section>
+
+    <!-- CODES TAB -->
+    <section class="adm-panel" id="panel-codes">
+      <div class="card mb-3">
+        <div class="section-title"><i class="fas fa-plus"></i> Generate Transfer Code</div>
+        <form id="codeForm" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div class="field" style="flex:1;min-width:200px;margin:0;">
+            <label>Customer</label>
+            <select id="codeUser" required></select>
+          </div>
+          <div class="field" style="width:140px;margin:0;">
+            <label>Max Amount (USD)</label>
+            <input id="codeLimit" type="number" min="1" required placeholder="500">
+          </div>
+          <div class="field" style="flex:1;min-width:160px;margin:0;">
+            <label>Custom Code <span style="font-size:0.7rem;color:var(--text-faint);font-weight:400;">(Optional)</span></label>
+            <input id="codeCustom" type="text" placeholder="e.g. VIP2026" style="text-transform:uppercase;">
+          </div>
+          <button class="btn btn-primary" id="codeBtn"><i class="fas fa-key"></i> Generate</button>
+        </form>
+      </div>
+      <div class="section-title" style="margin-top:24px;">Issued Codes</div>
+      <div id="codesList"></div>
+    </section>
+
+    <!-- TX TAB -->
+    <section class="adm-panel" id="panel-tx">
+      <div id="txList"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ADJUST BALANCE MODAL -->
+<div id="amountModal" style="display:none;position:fixed;inset:0;z-index:900;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);">
+  <div class="card" style="width:100%;max-width:400px;">
+    <h3 id="mTitle" style="margin-bottom:6px;font-size:1.05rem;color:var(--ink);">Adjust balance</h3>
+    <p id="mSub" class="muted mb-2" style="font-size:.82rem;"></p>
+    
+    <div class="field">
+      <label>Select Account</label>
+      <select id="mAccount"></select>
+    </div>
+    <div class="field">
+      <label>Amount (USD)</label>
+      <input id="mAmount" type="number" min="0.01" step="0.01" placeholder="0.00">
+    </div>
+    
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline" id="mCancel">Cancel</button>
+      <button class="btn btn-primary" id="mConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let users = [], accounts = [], txs = [], codes = [];
+let unsubs = [];
+let pendingAction = null;
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('err'); err.classList.remove('show');
+  $('btn').disabled = true; $('btn').innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Signing in…';
+  try {
+    if (auth.currentUser) await auth.signOut();
+    const cred = await auth.signInWithEmailAndPassword($('email').value.trim(), $('password').value);
+    if (cred.user.email.toLowerCase() !== STB_ADMIN_EMAIL.toLowerCase()) {
+      await auth.signOut(); err.textContent = 'This email is not an admin account.'; err.classList.add('show');
+    }
+  } catch (ex) {
+    err.textContent = ['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(ex.code) ? 'Incorrect email or password.' : (ex.message||'Failed.');
+    err.classList.add('show');
+  } finally { $('btn').disabled=false; $('btn').innerHTML='<i class="fas fa-lock-open"></i> Sign in'; }
+});
+
+$('signOut').addEventListener('click', async () => { await auth.signOut(); location.reload(); });
+
+auth.onAuthStateChanged(user => {
+  if (user && user.email.toLowerCase() === STB_ADMIN_EMAIL.toLowerCase()) {
+    $('gate').style.display = 'none'; $('panel').style.display = 'block'; start();
+  } else { stop(); $('gate').style.display = 'flex'; $('panel').style.display = 'none'; }
+});
+
+function start() {
+  if (unsubs.length) return;
+  unsubs.push(db.collection(COL.users).onSnapshot(s => {
+    users = []; s.forEach(d => users.push({ id:d.id, ...d.data() }));
+    renderUsers(); stats(); renderCodeUsers();
+  }));
+  unsubs.push(db.collection(COL.accounts).onSnapshot(s => {
+    accounts = []; s.forEach(d => accounts.push({ id:d.id, ...d.data() }));
+    renderUsers(); stats();
+  }));
+  unsubs.push(db.collection(COL.transactions).limit(300).onSnapshot(s => {
+    txs = []; s.forEach(d => txs.push({ id:d.id, ...d.data() })); renderTx(); stats();
+  }));
+  unsubs.push(db.collection(COL.transferCodes).onSnapshot(s => {
+    codes = []; s.forEach(d => codes.push({ id:d.id, ...d.data() })); renderCodes();
+  }));
+}
+function stop(){ unsubs.forEach(u => u()); unsubs = []; }
+
+function stats() {
+  $('sUsers').textContent = users.length;
+  $('sPending').textContent = users.filter(u => (u.status||'pending')==='pending').length + ' pending';
+  $('sBal').textContent = stbMoney(accounts.reduce((s,a)=>s+Number(a.balance||0),0));
+  $('sTx').textContent = txs.length;
+}
+
+function renderUsers() {
+  const q = ($('search').value||'').toLowerCase();
+  const el = $('usersList');
+  const filtered = users.filter(u => !q || (u.fullName||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q));
+  if (!filtered.length) { el.innerHTML = `<div class="stb-empty"><i class="fas fa-users"></i><p>No customers found.</p></div>`; return; }
+  el.innerHTML = filtered.map(u => {
+    const accs = accounts.filter(a => a.ownerId === u.id);
+    const total = accs.reduce((s,a)=>s+Number(a.balance||0),0);
+    const status = u.status || 'pending';
+    const badge = status === 'approved' ? 'approved' : status === 'blocked' ? 'blocked' : 'pending';
+    return `
+      <div class="adm-card">
+        <div class="adm-head">
+          <div class="stb-avatar">${stbInitials(u.fullName)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;color:var(--ink);">${u.fullName || 'Unknown'}</div>
+            <div class="muted" style="font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email||''}</div>
+          </div>
+          <span class="badge ${badge}">${status}</span>
+        </div>
+        <div class="muted" style="font-size:.78rem;">Accounts: <b style="color:var(--ink);">${accs.length}</b> &nbsp;·&nbsp; Balance: <b style="color:var(--ink);">${stbMoney(total)}</b></div>
+        <div class="row-actions">
+          ${status !== 'approved' ? `<button class="btn btn-outline btn-sm" data-act="approve" data-id="${u.id}"><i class="fas fa-check"></i> Approve</button>` : ''}
+          ${status !== 'blocked'   ? `<button class="btn btn-outline btn-sm" data-act="block" data-id="${u.id}"><i class="fas fa-ban"></i> Block</button>`:''}
+          <button class="btn btn-outline btn-sm" data-act="credit" data-id="${u.id}"><i class="fas fa-plus"></i> Add</button>
+          <button class="btn btn-outline btn-sm" data-act="debit"  data-id="${u.id}"><i class="fas fa-minus"></i> Remove</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+$('search').addEventListener('input', renderUsers);
+
+function renderCodeUsers() {
+  const sel = $('codeUser'); const prev = sel.value;
+  sel.innerHTML = '<option value="">Select customer…</option>' + users.filter(u => u.status === 'approved').map(u => `<option value="${u.id}">${u.fullName} (${u.email})</option>`).join('');
+  if (prev) sel.value = prev;
+}
+
+function renderCodes() {
+  const el = $('codesList');
+  if (!codes.length) { el.innerHTML = `<div class="stb-empty"><i class="fas fa-key"></i><p>No codes generated.</p></div>`; return; }
+  el.innerHTML = codes.sort((a,b)=>(b.createdAt?.toDate?.()?.getTime?.()||0)-(a.createdAt?.toDate?.()?.getTime?.()||0)).map(c => {
+    const u = users.find(x => x.id === c.customerUid);
+    return `
+      <div class="adm-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-family:monospace;font-size:1.2rem;font-weight:700;color:var(--blue);letter-spacing:0.1em;">${c.code}</div>
+            <div class="muted" style="font-size:.75rem;margin-top:4px;">For: <b>${u ? u.fullName : 'Unknown'}</b> · Max: ${stbMoney(c.maxAmount)}</div>
+          </div>
+          <span class="badge ${c.status==='active'?'approved':'pending'}">${c.status||'active'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+$('codeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const uid = $('codeUser').value; 
+  const limit = Number($('codeLimit').value);
+  let customCode = $('codeCustom').value.trim().toUpperCase();
+  if (!uid || limit <= 0) return;
+  if (customCode && customCode.length < 4) return stbToast('Custom code must be at least 4 characters.', 'error');
+  
+  $('codeBtn').disabled = true;
+  $('codeBtn').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Wait…';
+  try {
+    const codeStr = customCode || ('STB-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+    const existing = await db.collection(COL.transferCodes).doc(codeStr).get();
+    if (existing.exists) throw new Error(`Code "${codeStr}" already exists.`);
+    
+    await db.collection(COL.transferCodes).doc(codeStr).set({
+      code: codeStr, customerUid: uid, maxAmount: limit, status: 'active', createdAt: FV.serverTimestamp()
+    });
+    stbToast(`Code created: ${codeStr}`, 'success');
+    $('codeLimit').value = ''; $('codeUser').value = ''; $('codeCustom').value = '';
+  } catch(ex) { stbToast(ex.message, 'error'); }
+  finally { $('codeBtn').disabled = false; $('codeBtn').innerHTML = '<i class="fas fa-key"></i> Generate'; }
+});
+
+function renderTx() {
+  const el = $('txList');
+  const sorted = [...txs].sort((a,b)=>(b.createdAt?.toDate?.()?.getTime?.()||0)-(a.createdAt?.toDate?.()?.getTime?.()||0));
+  if (!sorted.length) { el.innerHTML = `<div class="stb-empty"><i class="fas fa-receipt"></i><p>No transactions.</p></div>`; return; }
+  el.innerHTML = sorted.slice(0,100).map(t => `
+    <div class="adm-card">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+        <div style="min-width:0;">
+          <div style="font-weight:700;color:var(--ink);text-transform:capitalize;">${(t.type||'').replace(/_/g,' ')}</div>
+          <div class="muted" style="font-size:.72rem;font-family:ui-monospace,monospace;">${t.reference||''}</div>
+          <div class="muted" style="font-size:.75rem;margin-top:6px;">${t.fromAccountName||'—'} → ${t.toAccountName||'—'}${t.toBank? ' · '+t.toBank : ''}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:800;color:var(--ink);">${stbMoney(t.amount)}</div>
+          <span class="badge ${t.status==='completed'?'completed':t.status==='pending'?'pending':t.status}">${t.status||''}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+document.addEventListener('click', async e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const act = btn.dataset.act, id = btn.dataset.id;
+  try {
+    if (act === 'approve') { await db.collection(COL.users).doc(id).update({status:'approved'}); stbToast('Approved.','success'); return; }
+    if (act === 'block')   { await db.collection(COL.users).doc(id).update({status:'blocked'}); stbToast('Blocked.','success'); return; }
+    
+    if (act === 'credit' || act === 'debit') {
+      const u = users.find(x => x.id === id);
+      if (!u) return;
+      const uAccs = accounts.filter(a => a.ownerId === id);
+      if (!uAccs.length) return stbToast('User has no accounts.', 'error');
+      const isCredit = act === 'credit';
+      openModal(isCredit?'Add funds':'Remove funds', `${u.fullName} — ${u.email}`, uAccs, async (amount, accountId) => {
+        const target = uAccs.find(a => a.id === accountId);
+        if (!isCredit && Number(target.balance||0) < amount) throw new Error('Insufficient balance.');
+        await db.collection(COL.accounts).doc(accountId).update({ balance: FV.increment(isCredit? amount : -amount) });
+        await db.collection(COL.transactions).add({
+          reference: stbGenReference(), type: isCredit ? 'admin_credit' : 'admin_debit',
+          fromUid: isCredit ? null : id, fromAccountId: isCredit ? null : accountId,
+          fromAccountName: isCredit ? 'Sterling Bank' : (target.ownerName||''),
+          toUid: isCredit ? id : null, toAccountId: isCredit ? accountId : null,
+          toAccountName: isCredit ? (target.ownerName||'') : 'Sterling Bank',
+          amount, fee: 0, total: amount, description: isCredit ? 'Admin credit' : 'Admin debit',
+          status: 'completed', createdAt: FV.serverTimestamp()
+        });
+        stbNotify(id, isCredit?'Funds added':'Funds removed', `${stbMoney(amount)} ${isCredit?'credited to':'debited from'} your ${target.type} account.`);
+        stbToast('Done.', 'success');
+      });
+      return;
+    }
+  } catch (ex) { console.error(ex); stbToast(ex.message||'Failed.','error'); }
+});
+
+function openModal(title, sub, uAccs, action) {
+  $('mTitle').textContent = title; $('mSub').textContent = sub;
+  $('mAccount').innerHTML = uAccs.map(a => `<option value="${a.id}">${a.type.toUpperCase()} ••${(a.accountNumber||'').slice(-4)} (${stbMoney(a.balance)})</option>`).join('');
+  $('mAmount').value = ''; pendingAction = action;
+  $('amountModal').style.display = 'flex'; setTimeout(()=>$('mAmount').focus(),100);
+}
+$('mCancel').addEventListener('click', () => { $('amountModal').style.display='none'; pendingAction=null; });
+$('mConfirm').addEventListener('click', async () => {
+  const amt = Number($('mAmount').value||0); const accId = $('mAccount').value;
+  if (amt<=0 || !pendingAction) return;
+  $('mConfirm').disabled=true;
+  try { await pendingAction(amt, accId); $('amountModal').style.display='none'; pendingAction=null; }
+  catch (ex) { stbToast(ex.message||'Failed.','error'); }
+  finally { $('mConfirm').disabled=false; }
+});
+
+document.querySelectorAll('.adm-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.adm-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.adm-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); $('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

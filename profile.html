@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Profile — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="max-width:640px;">
+  <div class="page-head"><div><h1>Your profile</h1><p>Manage your personal details.</p></div></div>
+
+  <div class="card mb-3" style="text-align:center;">
+    <div class="stb-avatar" style="width:72px;height:72px;font-size:1.3rem;margin:0 auto 14px;" data-stb-avatar>?</div>
+    <div style="font-weight:700;font-size:1.05rem;color:var(--ink);" data-stb-name>—</div>
+    <div class="muted" style="font-size:.82rem;" data-stb-email>—</div>
+  </div>
+
+  <div class="card">
+    <div class="form-alert" id="err"></div>
+    <div class="form-alert success" id="ok"></div>
+    <form id="profForm">
+      <div class="field"><label>Full name</label><input id="fullName" required></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input id="phone" required></div>
+        <div class="field"><label>Date of birth</label><input id="dob" type="date" required></div>
+      </div>
+      <div class="field"><label>Street</label><input id="street"></div>
+      <div class="field-row">
+        <div class="field"><label>City</label><input id="city"></div>
+        <div class="field"><label>State / Region</label><input id="state"></div>
+      </div>
+      <div class="field"><label>ZIP / Postal</label><input id="zip"></div>
+      <button class="btn btn-primary btn-block" id="btn">Save changes</button>
+    </form>
+  </div>
+</main>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+stbBootstrapDrawer({
+  active: 'profile',
+  onReady: (user, data) => {
+    $('fullName').value = data.fullName || '';
+    $('phone').value    = data.phone || '';
+    $('dob').value      = data.dob || '';
+    const a = data.address || {};
+    $('street').value = a.street || '';
+    $('city').value   = a.city || '';
+    $('state').value  = a.state || '';
+    $('zip').value    = a.zip || '';
+  }
+});
+
+$('profForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err=$('err'), ok=$('ok'), btn=$('btn');
+  err.classList.remove('show'); ok.classList.remove('show');
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Saving…';
+
+  try {
+    await db.collection(COL.users).doc(auth.currentUser.uid).update({
+      fullName: $('fullName').value.trim(),
+      phone: $('phone').value.trim(),
+      dob: $('dob').value,
+      address: {
+        street: $('street').value.trim(),
+        city: $('city').value.trim(),
+        state: $('state').value.trim(),
+        zip: $('zip').value.trim()
+      }
+    });
+    ok.textContent = 'Profile updated.';
+    ok.classList.add('show');
+    stbToast('Profile saved.', 'success');
+  } catch (ex) {
+    err.textContent = ex.message || 'Failed.';
+    err.classList.add('show');
+  } finally {
+    btn.disabled=false; btn.textContent='Save changes';
+  }
+});
+</script>
+</body>
+</html>

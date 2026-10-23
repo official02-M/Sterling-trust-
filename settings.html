@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settings — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="max-width:600px;">
+  <div class="page-head"><div><h1>Settings</h1><p>Security and account preferences.</p></div></div>
+
+  <div class="card mb-3">
+    <div class="section-title"><i class="fas fa-key"></i> Change transaction PIN</div>
+    <div class="form-alert" id="pinErr"></div>
+    <form id="pinForm">
+      <div class="field"><label>Current PIN</label><input id="oldPin" inputmode="numeric" maxlength="4" required></div>
+      <div class="field-row">
+        <div class="field"><label>New PIN</label><input id="newPin" inputmode="numeric" maxlength="4" required></div>
+        <div class="field"><label>Confirm new PIN</label><input id="newPin2" inputmode="numeric" maxlength="4" required></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="pinBtn">Update PIN</button>
+    </form>
+  </div>
+
+  <div class="card mb-3">
+    <div class="section-title"><i class="fas fa-lock"></i> Change password</div>
+    <div class="form-alert" id="pwErr"></div>
+    <form id="pwForm">
+      <div class="field"><label>Current password</label><input id="oldPw" type="password" required></div>
+      <div class="field-row">
+        <div class="field"><label>New password</label><input id="newPw" type="password" minlength="6" required></div>
+        <div class="field"><label>Confirm new password</label><input id="newPw2" type="password" required></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="pwBtn">Update password</button>
+    </form>
+  </div>
+
+  <button class="btn btn-danger btn-block" id="signOut"><i class="fas fa-arrow-right-from-bracket"></i> Sign out</button>
+</main>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let myData = {};
+
+stbBootstrapDrawer({ active: 'settings', onReady: (u,d) => { myData = d; } });
+
+$('pinForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('pinErr'); err.classList.remove('show');
+  const oldPin = $('oldPin').value.trim();
+  const newPin = $('newPin').value.trim();
+  const newPin2= $('newPin2').value.trim();
+
+  if (!/^\d{4}$/.test(newPin)) return showErr(err, 'New PIN must be 4 digits.');
+  if (newPin !== newPin2) return showErr(err, 'PINs do not match.');
+
+  const oldHash = await stbHashPin(oldPin);
+  if (oldHash !== (myData.pinHash||'')) return showErr(err, 'Current PIN is incorrect.');
+
+  const newHash = await stbHashPin(newPin);
+  await db.collection(COL.users).doc(auth.currentUser.uid).update({ pinHash: newHash });
+  myData.pinHash = newHash;
+  $('pinForm').reset();
+  stbToast('PIN updated.', 'success');
+});
+
+$('pwForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('pwErr'); err.classList.remove('show');
+  const oldPw = $('oldPw').value, newPw = $('newPw').value, newPw2 = $('newPw2').value;
+  if (newPw !== newPw2) return showErr(err, 'Passwords do not match.');
+
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(auth.currentUser.email, oldPw);
+    await auth.currentUser.reauthenticateWithCredential(cred);
+    await auth.currentUser.updatePassword(newPw);
+    $('pwForm').reset();
+    stbToast('Password updated.', 'success');
+  } catch (ex) {
+    showErr(err, ex.code === 'auth/wrong-password' ? 'Current password is incorrect.' : (ex.message||'Failed.'));
+  }
+});
+
+$('signOut').addEventListener('click', stbSignOut);
+function showErr(el,m){ el.textContent=m; el.classList.add('show'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sterling Bank — Banking, reimagined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background: var(--bg);">
+
+<!-- FIXED HEADER -->
+<header class="landing-header">
+  <div class="landing-header-inner">
+    <a href="index.html" class="stb-brand">
+      <div class="stb-brand-mark"><i class="fas fa-bolt"></i></div>
+      <div class="stb-brand-text">Sterling <span>Bank</span></div>
+    </a>
+    <button class="landing-menu-btn" id="openMenuBtn"><i class="fas fa-bars"></i></button>
+  </div>
+</header>
+
+<!-- MENU DRAWER -->
+<div class="landing-drawer-overlay" id="menuOverlay"></div>
+<div class="landing-drawer" id="menuDrawer">
+  <button class="landing-drawer-close" id="closeMenuBtn"><i class="fas fa-xmark"></i></button>
+  
+  <nav class="landing-nav">
+    <a href="index.html">Home</a>
+    <a href="#features">Features</a>
+    <a href="#security">Security</a>
+    <a href="help.html">Help Center</a>
+  </nav>
+
+  <div class="landing-drawer-auth">
+    <a href="login.html" class="btn btn-outline btn-lg btn-block">Sign In</a>
+    <a href="signup.html" class="btn btn-primary btn-lg btn-block">Open Account</a>
+  </div>
+</div>
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="hero-badge">
+        <i class="fas fa-shield-halved"></i> FDIC Insured up to $250,000
+      </div>
+      <h1>Banking, <em>reimagined</em> for the modern world.</h1>
+      <p class="lead">Move money instantly, lock savings at high APY, and track every transaction — all from one beautifully simple, secure account.</p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Open an account</a>
+        <a href="#features" class="btn btn-lg btn-outline" style="color:#fff; border-color:var(--line-2);">Explore features</a>
+      </div>
+    </div>
+    
+    <!-- Hero Mockup -->
+    <div class="hero-card">
+      <div class="hero-card-label">Total Balance</div>
+      <div class="hero-card-balance">$124,580.50</div>
+      
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-top:1px solid var(--line); padding-top:16px;">
+        <div>
+          <div style="font-size:0.7rem; color:var(--text-faint); margin-bottom:4px;">Inflow</div>
+          <div style="font-size:0.9rem; font-weight:700; color:var(--green);">+$12,450.00</div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem; color:var(--text-faint); margin-bottom:4px;">Outflow</div>
+          <div style="font-size:0.9rem; font-weight:700; color:var(--red);">-$4,200.00</div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem; color:var(--text-faint); margin-bottom:4px;">APY</div>
+          <div style="font-size:0.9rem; font-weight:700; color:var(--blue);">5.20%</div>
+        </div>
+      </div>
+      
+      <div style="background:var(--panel-2); border-radius:10px; padding:12px; display:flex; align-items:center; gap:12px;">
+        <div style="background:var(--blue-soft); color:var(--blue); width:36px; height:36px; border-radius:50%; display:grid; place-items:center;">
+          <i class="fas fa-check"></i>
+        </div>
+        <div>
+          <div style="font-size:0.8rem; font-weight:600; color:var(--ink);">Transfer Successful</div>
+          <div style="font-size:0.7rem; color:var(--text-faint);">To John Doe • Just now</div>
+        </div>
+        <div style="margin-left:auto; font-weight:700; font-size:0.9rem;">$500.00</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats-section">
+  <div class="container stats-grid">
+    <div class="stat-item">
+      <h3>2M+</h3>
+      <p>Active Customers</p>
+    </div>
+    <div class="stat-item">
+      <h3>$10B+</h3>
+      <p>Assets Secured</p>
+    </div>
+    <div class="stat-item">
+      <h3>4.9/5</h3>
+      <p>App Store Rating</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="section container" id="features">
+  <h2>Everything a modern bank should be</h2>
+  <p class="sub">Powerful tools, no hidden fees, and a design that gets out of your way.</p>
+  
+  <div class="feature-grid">
+    <div class="feature">
+      <i class="fas fa-bolt"></i>
+      <h3>Instant Transfers</h3>
+      <p>Send money to any Sterling account in seconds — no delays, no drama.</p>
+    </div>
+    <div class="feature">
+      <i class="fas fa-piggy-bank"></i>
+      <h3>High-Yield Savings</h3>
+      <p>Lock funds for 3, 6, or 12 months and earn up to 6.00% APY on your savings.</p>
+    </div>
+    <div class="feature">
+      <i class="fas fa-globe"></i>
+      <h3>Global Payments</h3>
+      <p>Send funds securely to any external US bank account with zero transfer fees.</p>
+    </div>
+    <div class="feature">
+      <i class="fas fa-credit-card"></i>
+      <h3>Smart Cards</h3>
+      <p>Freeze your card, set spending limits, and view transactions in real-time.</p>
+    </div>
+    <div class="feature">
+      <i class="fas fa-chart-pie"></i>
+      <h3>Financial Insights</h3>
+      <p>Track your inflows, outflows, and net position with beautiful, real-time charts.</p>
+    </div>
+    <div class="feature">
+      <i class="fas fa-headset"></i>
+      <h3>24/7 Support</h3>
+      <p>Our dedicated support team is available around the clock to help you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY SECTION -->
+<section class="section security-section" id="security">
+  <div class="container security-content">
+    <div class="security-text">
+      <h2>Your security is our top priority.</h2>
+      <p>We use bank-grade security protocols to ensure your money and data are always protected. Sleep easy knowing your funds are safe with Sterling Bank.</p>
+      
+      <div class="security-list">
+        <div class="security-list-item">
+          <i class="fas fa-check"></i> 256-bit AES Encryption
+        </div>
+        <div class="security-list-item">
+          <i class="fas fa-check"></i> Biometric & PIN Authentication
+        </div>
+        <div class="security-list-item">
+          <i class="fas fa-check"></i> 24/7 Fraud Monitoring
+        </div>
+        <div class="security-list-item">
+          <i class="fas fa-check"></i> FDIC Insured Deposits
+        </div>
+      </div>
+    </div>
+    
+    <div style="display:flex; justify-content:center;">
+      <div style="width:200px; height:200px; border-radius:50%; background:var(--blue-soft); display:grid; place-items:center; border:2px dashed var(--blue-line);">
+        <i class="fas fa-shield-halved" style="font-size:5rem; color:var(--blue);"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="section container">
+  <div style="background:linear-gradient(135deg, var(--panel), var(--bg-2)); border:1px solid var(--line-2); border-radius:24px; padding:60px 24px; text-align:center;">
+    <h2 style="margin-bottom:16px;">Open an account in under 2 minutes</h2>
+    <p class="sub" style="margin-bottom:30px;">No paperwork. No branch visit. Just your details.</p>
+    <a href="signup.html" class="btn btn-primary btn-lg" style="padding:16px 32px; font-size:1rem;"><i class="fas fa-arrow-right"></i> Get started today</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="stb-foot">
+  <div class="stb-foot-grid">
+    <div>
+      <a href="index.html" class="stb-brand" style="margin-bottom:12px;">
+        <div class="stb-brand-mark"><i class="fas fa-bolt"></i></div>
+        <div class="stb-brand-text">Sterling <span>Bank</span></div>
+      </a>
+      <p style="font-size:.78rem; line-height:1.6; margin-top:12px;">
+        Sterling Bank is a financial technology company, not a bank. Banking services provided by partner institutions, Members FDIC.
+      </p>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <a href="#">About Us</a>
+      <a href="#">Careers</a>
+      <a href="#">Press</a>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <a href="help.html">Help Center</a>
+      <a href="login.html">Sign In</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Security</a>
+    </div>
+  </div>
+  <div class="stb-foot-bottom">
+    © <span id="y"></span> Sterling Bank. All rights reserved.
+  </div>
+</footer>
+
+<script>
+// Set Year
+document.getElementById('y').textContent = new Date().getFullYear();
+
+// Hamburger Menu Logic
+const menuDrawer = document.getElementById('menuDrawer');
+const menuOverlay = document.getElementById('menuOverlay');
+
+document.getElementById('openMenuBtn').addEventListener('click', () => {
+  menuDrawer.classList.add('open');
+  menuOverlay.classList.add('open');
+});
+
+document.getElementById('closeMenuBtn').addEventListener('click', () => {
+  menuDrawer.classList.remove('open');
+  menuOverlay.classList.remove('open');
+});
+
+menuOverlay.addEventListener('click', () => {
+  menuDrawer.classList.remove('open');
+  menuOverlay.classList.remove('open');
+});
+</script>
+</body>
+</html>

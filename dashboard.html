@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — Sterling Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container" style="padding-bottom: 100px;">
+
+  <!-- HEADER -->
+  <div class="page-head" style="margin-bottom: 24px;">
+    <div>
+      <h1 id="greetingText" style="font-size: 1.65rem;">Welcome back</h1>
+      <p class="muted" style="font-size: 0.88rem; margin-top: 4px;">Here is your account overview.</p>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- ============ MAIN COLUMN ============ -->
+    <div>
+
+      <!-- SLEEK BALANCE CARD -->
+      <div class="sleek-balance-card">
+        <div class="sleek-balance-head">
+          <div class="sleek-balance-label">
+            Total Balance 
+            <button class="eye-btn" id="eyeBtn" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:0 0 0 8px;"><i class="fas fa-eye"></i></button>
+          </div>
+          <div class="sleek-balance-date" id="cardDate">—</div>
+        </div>
+        
+        <div class="sleek-balance-amount" id="totalBal">$0.00</div>
+        
+        <div class="sleek-balance-sub">
+          <i class="fas fa-shield-check" style="color:var(--green);"></i> Available across all accounts
+        </div>
+      </div>
+
+      <!-- NEW 3-BUTTON QUICK ACTIONS -->
+      <div class="quick-actions-row">
+        <a href="transfer-internal.html" class="quick-action-btn">
+          <div class="qa-icon"><i class="fas fa-paper-plane"></i></div>
+          <span>Transfer</span>
+        </a>
+        <a href="transfer-external.html" class="quick-action-btn">
+          <div class="qa-icon"><i class="fas fa-building-columns"></i></div>
+          <span>External</span>
+        </a>
+        <a href="save.html" class="quick-action-btn">
+          <div class="qa-icon"><i class="fas fa-piggy-bank"></i></div>
+          <span>Save</span>
+        </a>
+      </div>
+
+      <!-- ACCOUNTS -->
+      <div class="section-title" style="justify-content:space-between; margin-top: 12px;">
+        <span><i class="fas fa-layer-group"></i> Account Portfolio</span>
+        <a href="history.html" style="font-size:.76rem; font-weight:600;">View statements</a>
+      </div>
+      <div class="acct-grid" id="acctGrid">
+        <div class="stb-empty"><i class="fas fa-circle-notch fa-spin"></i><p>Loading accounts…</p></div>
+      </div>
+
+      <!-- RECENT TRANSACTIONS -->
+      <div class="section-title" style="justify-content:space-between; margin-top: 32px;">
+        <span><i class="fas fa-clock-rotate-left"></i> Recent Activity</span>
+        <a href="history.html" style="font-size:.76rem; font-weight:600;">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      
+      <div class="filter-chips" id="chipRow">
+        <button class="chip active" data-filter="">All</button>
+        <button class="chip" data-filter="in">Inbound</button>
+        <button class="chip" data-filter="out">Outbound</button>
+      </div>
+      <div class="tx-list" id="txList">
+        <div class="stb-empty"><i class="fas fa-circle-notch fa-spin"></i><p>Loading activity…</p></div>
+      </div>
+
+    </div>
+
+    <!-- ============ RIGHT RAIL ============ -->
+    <aside class="rail">
+
+      <!-- SAVINGS GOAL -->
+      <div class="rail-card">
+        <div class="goal-head">
+          <div class="goal-icon"><i class="fas fa-bullseye"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div class="goal-title">Savings Target</div>
+            <div class="goal-sub" id="goalSub">$0 of $1,000</div>
+          </div>
+        </div>
+        <div class="goal-bar"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+        <a class="btn btn-primary btn-sm btn-block" href="save.html" style="margin-top:14px;">
+          <i class="fas fa-arrow-up"></i> Grow funds
+        </a>
+      </div>
+
+      <!-- PROMO -->
+      <div class="promo-card">
+        <h4>Bank with confidence.</h4>
+        <p>Your funds are protected by industry-leading security protocols.</p>
+        <a href="help.html" class="btn">Security details <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <!-- TIP -->
+      <div class="tip-card">
+        <i class="fas fa-circle-info"></i>
+        <div>
+          <h4>Yield Opportunity</h4>
+          <p>Lock idle funds in a fixed-term plan and earn up to 6.00% APY.</p>
+          <a href="save.html">Explore plans <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</main>
+
+<!-- ========================================== -->
+<!-- APP DOCK (Bottom Navigation)               -->
+<!-- ========================================== -->
+<nav class="app-dock">
+  <a href="transfer-internal.html" class="app-dock-item">
+    <i class="fas fa-paper-plane"></i><span>Transfer</span>
+  </a>
+  <a href="transfer-external.html" class="app-dock-item">
+    <i class="fas fa-building-columns"></i><span>External</span>
+  </a>
+  
+  <!-- Center Menu Button -->
+  <button class="app-dock-center" id="dockMenuBtn" aria-label="Open Menu">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <a href="move-money.html" class="app-dock-item">
+    <i class="fas fa-shuffle"></i><span>Move</span>
+  </a>
+  <a href="save.html" class="app-dock-item">
+    <i class="fas fa-piggy-bank"></i><span>Save</span>
+  </a>
+</nav>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="drawer.js"></script>
+<script>
+/* Greeting */
+const hour = new Date().getHours();
+let greet = "Good evening";
+if (hour < 12) greet = "Good morning";
+else if (hour < 18) greet = "Good afternoon";
+document.getElementById('greetingText').innerHTML = `${greet}, <span data-stb-first>there</span> 👋`;
+
+/* Date */
+document.getElementById('cardDate').textContent = new Date().toLocaleDateString('en-US', {
+  month:'short', day:'numeric', year:'numeric'
+});
+
+let hideBalance = false;
+let totalValue = 0;
+let allTx = [];
+let currentFilter = '';
+
+stbBootstrapDrawer({
+  active: 'dashboard',
+  onReady: (user, data) => {
+    const first = (data.fullName || 'there').split(' ')[0];
+    document.querySelectorAll('[data-stb-first]').forEach(el => el.textContent = first);
+
+    /* ACCOUNTS */
+    db.collection(COL.accounts).where('ownerId','==',user.uid).onSnapshot(snap => {
+      const accts = [];
+      snap.forEach(d => accts.push({ id:d.id, ...d.data() }));
+      renderAccounts(accts);
+      totalValue = accts.reduce((s,a) => s + Number(a.balance||0), 0);
+      updateTotal();
+    });
+
+    /* TRANSACTIONS */
+    let fromTx=[], toTx=[];
+    const merge = () => {
+      const all = {};
+      [...fromTx, ...toTx].forEach(t => all[t.id] = t);
+      allTx = Object.values(all).sort((a,b) =>
+        (b.createdAt?.toDate?.()?.getTime?.()||0) - (a.createdAt?.toDate?.()?.getTime?.()||0));
+      renderTx();
+    };
+    db.collection(COL.transactions).where('fromUid','==',user.uid).limit(50)
+      .onSnapshot(s => { fromTx=[]; s.forEach(d=>fromTx.push({id:d.id,...d.data()})); merge(); });
+    db.collection(COL.transactions).where('toUid','==',user.uid).limit(50)
+      .onSnapshot(s => { toTx=[]; s.forEach(d=>toTx.push({id:d.id,...d.data()})); merge(); });
+
+    /* SAVINGS GOAL */
+    db.collection(COL.accounts).where('ownerId','==',user.uid).where('type','==','lock').onSnapshot(snap => {
+      let saved = 0;
+      snap.forEach(d => saved += Number(d.data().balance||0));
+      const target = 1000;
+      const pct = Math.min(100, Math.round((saved / target) * 100));
+      document.getElementById('goalSub').textContent = `${stbMoney(saved)} of ${stbMoney(target)}`;
+      document.getElementById('goalFill').style.width = pct + '%';
+    });
+  }
+});
+
+/* Eye toggle */
+document.getElementById('eyeBtn').addEventListener('click', () => {
+  hideBalance = !hideBalance;
+  document.getElementById('eyeBtn').innerHTML =
+    hideBalance ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  updateTotal();
+  document.querySelectorAll('[data-balance]').forEach(el => {
+    el.textContent = hideBalance ? '••••••' : el.dataset.balance;
+  });
+});
+
+function updateTotal() {
+  document.getElementById('totalBal').textContent =
+    hideBalance ? '••••••' : stbMoney(totalValue);
+}
+
+/* Render accounts */
+function renderAccounts(accts) {
+  const el = document.getElementById('acctGrid');
+  if (!accts.length) {
+    el.innerHTML = `<div class="stb-empty"><i class="fas fa-wallet"></i><p>No accounts active.</p></div>`;
+    return;
+  }
+  const palette = ['green','blue','purple','gold'];
+  const icons = { checking:'fa-wallet', savings:'fa-piggy-bank', lock:'fa-lock' };
+  el.innerHTML = accts.map((a,i) => {
+    const p = palette[i % palette.length];
+    const icon = icons[a.type] || 'fa-wallet';
+    const label = a.type === 'checking' ? 'Current Account'
+                : a.type === 'savings'  ? 'Savings Account'
+                : a.type === 'lock'     ? 'Fixed Lock'
+                : a.type;
+    const display = hideBalance ? '••••••' : stbMoney(a.balance);
+    return `
+      <a class="acct-card" href="history.html" style="text-decoration:none;color:inherit;">
+        <div class="acct-card-head">
+          <div class="acct-icon ${p}"><i class="fas ${icon}"></i></div>
+          <div style="min-width:0;">
+            <div class="acct-card-title">${label}</div>
+            <div class="acct-card-num">${a.accountNumber||'—'}</div>
+          </div>
+        </div>
+        <div class="acct-card-balance" data-balance="${stbMoney(a.balance)}">${display}</div>
+        <span class="acct-card-link">View details <i class="fas fa-arrow-right"></i></span>
+      </a>`;
+  }).join('');
+}
+
+/* Filter chips */
+document.getElementById('chipRow').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentFilter = chip.dataset.filter;
+  renderTx();
+});
+
+/* Render transactions */
+function renderTx() {
+  const el = document.getElementById('txList');
+  const uid = auth.currentUser.uid;
+
+  let list = allTx;
+  if (currentFilter === 'in')  list = list.filter(t => t.toUid === uid);
+  if (currentFilter === 'out') list = list.filter(t => t.fromUid === uid);
+
+  if (!list.length) {
+    el.innerHTML = `<div class="stb-empty"><i class="fas fa-receipt"></i><p>No recent activity.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.slice(0, 8).map(t => {
+    const out = t.fromUid === uid;
+    const cls = out ? 'out' : 'in';
+    const icon = out ? 'fa-arrow-up' : 'fa-arrow-down';
+    const sign = out ? '−' : '+';
+    const title = out
+      ? `Transfer to ${t.toAccountName || t.toBank || 'External'}`
+      : `${t.type === 'admin_credit' ? 'Deposit from' : 'Transfer from'} ${t.fromAccountName || 'Sterling Bank'}`;
+    const when = stbDate(t.createdAt, { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    return `
+      <div class="tx-row">
+        <div class="tx-icon ${cls}"><i class="fas ${icon}"></i></div>
+        <div class="tx-main">
+          <div class="tx-title">${title}</div>
+          <div class="tx-meta">${when}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="tx-amt ${out?'neg':'pos'}">${sign}${stbMoney(t.amount)}</div>
+          <span class="badge ${t.status==='completed'?'completed':t.status}">${t.status||'completed'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* Handle Menu Button in Dock */
+document.getElementById('dockMenuBtn').addEventListener('click', () => {
+  document.getElementById('stbSidebar').classList.add('open');
+  document.getElementById('stbSidebarOverlay').classList.add('open');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in — Sterling Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background:linear-gradient(160deg,#0a2540,#103059);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+
+<div class="card" style="width:100%;max-width:400px;padding:32px 26px;">
+  <a href="index.html" class="stb-brand" style="margin-bottom:22px;">
+    <div class="stb-brand-mark"><i class="fas fa-building-columns"></i></div>
+    <div class="stb-brand-text">Sterling <span>Bank</span></div>
+  </a>
+  <h1 style="font-size:1.4rem;margin-bottom:4px;">Welcome back</h1>
+  <p class="muted mb-3" style="font-size:.86rem;">Sign in to your Sterling Bank account.</p>
+
+  <div class="form-alert" id="err"></div>
+
+  <form id="loginForm">
+    <div class="field"><label>Email</label><input id="email" type="email" required></div>
+    <div class="field"><label>Password</label><input id="password" type="password" required></div>
+    <button class="btn btn-gold btn-lg btn-block" id="btn">
+      <i class="fas fa-lock-open"></i> Sign in
+    </button>
+  </form>
+
+  <p class="center mt-3" style="font-size:.82rem;">
+    No account? <a href="signup.html">Open one</a>
+  </p>
+  <p class="center mt-1" style="font-size:.75rem;">
+    <a href="index.html" style="color:var(--text-faint);"><i class="fas fa-arrow-left"></i> Back to website</a>
+  </p>
+</div>
+
+<div class="stb-toast" id="stb-toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const err = $('err'), btn = $('btn');
+
+if (new URLSearchParams(location.search).get('blocked')) {
+  err.textContent = 'Your account has been blocked. Contact support.';
+  err.classList.add('show');
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  err.classList.remove('show');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Signing in…';
+  try {
+    const email = $('email').value.trim().toLowerCase();
+    const pass  = $('password').value;
+    // If a customer is currently signed in, sign out first
+    if (auth.currentUser) await auth.signOut();
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+
+    // route admin to admin panel; customers to dashboard
+    if (email === STB_ADMIN_EMAIL.toLowerCase()) {
+      location.replace('admin.html');
+    } else {
+      location.replace('dashboard.html');
+    }
+  } catch (ex) {
+    console.error(ex);
+    let m = 'Sign-in failed.';
+    if (['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(ex.code))
+      m = 'Incorrect email or password.';
+    else if (ex.code === 'auth/too-many-requests') m = 'Too many attempts. Try again later.';
+    err.textContent = m;
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-lock-open"></i> Sign in';
+  }
+});
+</script>
+</body>
+</html>
