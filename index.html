@@ -245,5 +245,22 @@ menuOverlay.addEventListener('click', () => {
   menuOverlay.classList.remove('open');
 });
 </script>
+
+<!-- FIREBASE AUTH CHECK (Redirects logged-in users) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+auth.onAuthStateChanged(user => {
+  if (user) {
+    if (user.email.toLowerCase() === STB_ADMIN_EMAIL.toLowerCase()) {
+      window.location.replace('admin.html');
+    } else {
+      window.location.replace('dashboard.html');
+    }
+  }
+});
+</script>
 </body>
 </html>
