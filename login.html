@@ -8,14 +8,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body style="background:linear-gradient(160deg,#0a2540,#103059);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+<body class="auth-bg">
 
 <div class="card" style="width:100%;max-width:400px;padding:32px 26px;">
   <a href="index.html" class="stb-brand" style="margin-bottom:22px;">
-    <div class="stb-brand-mark"><i class="fas fa-building-columns"></i></div>
+    <div class="stb-brand-mark"><i class="fas fa-bolt"></i></div>
     <div class="stb-brand-text">Sterling <span>Bank</span></div>
   </a>
-  <h1 style="font-size:1.4rem;margin-bottom:4px;">Welcome back</h1>
+  <h1 style="font-size:1.4rem;margin-bottom:4px;color:var(--ink);">Welcome back</h1>
   <p class="muted mb-3" style="font-size:.86rem;">Sign in to your Sterling Bank account.</p>
 
   <div class="form-alert" id="err"></div>
@@ -23,7 +23,7 @@
   <form id="loginForm">
     <div class="field"><label>Email</label><input id="email" type="email" required></div>
     <div class="field"><label>Password</label><input id="password" type="password" required></div>
-    <button class="btn btn-gold btn-lg btn-block" id="btn">
+    <button class="btn btn-primary btn-lg btn-block" id="btn">
       <i class="fas fa-lock-open"></i> Sign in
     </button>
   </form>
@@ -51,6 +51,17 @@ if (new URLSearchParams(location.search).get('blocked')) {
   err.classList.add('show');
 }
 
+// Redirect if already logged in
+auth.onAuthStateChanged(user => {
+  if (user) {
+    if (user.email.toLowerCase() === STB_ADMIN_EMAIL.toLowerCase()) {
+      window.location.replace('admin.html');
+    } else {
+      window.location.replace('dashboard.html');
+    }
+  }
+});
+
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   err.classList.remove('show');
@@ -59,11 +70,9 @@ $('loginForm').addEventListener('submit', async e => {
   try {
     const email = $('email').value.trim().toLowerCase();
     const pass  = $('password').value;
-    // If a customer is currently signed in, sign out first
     if (auth.currentUser) await auth.signOut();
     const cred = await auth.signInWithEmailAndPassword(email, pass);
 
-    // route admin to admin panel; customers to dashboard
     if (email === STB_ADMIN_EMAIL.toLowerCase()) {
       location.replace('admin.html');
     } else {
