@@ -3,16 +3,16 @@
    ============================================================ */
 
 const STB_NAV = [
-  { id: 'dashboard', href: 'dashboard.html', icon: 'fa-house', label: 'Dashboard' },
-  { id: 'transfer', href: 'transfer-internal.html', icon: 'fa-arrow-right-arrow-left', label: 'Transfers' },
-  { id: 'external', href: 'transfer-external.html', icon: 'fa-building-columns', label: 'External' },
-  { id: 'move', href: 'move-money.html', icon: 'fa-shuffle', label: 'Move money' },
-  { id: 'save', href: 'save.html', icon: 'fa-piggy-bank', label: 'Save' },
-  { id: 'history', href: 'history.html', icon: 'fa-file-invoice', label: 'History' },
-  { id: 'notifications', href: 'notifications.html', icon: 'fa-bell', label: 'Notifications' },
-  { id: 'profile', href: 'profile.html', icon: 'fa-user', label: 'Profile' },
-  { id: 'settings', href: 'settings.html', icon: 'fa-gear', label: 'Settings' },
-  { id: 'help', href: 'help.html', icon: 'fa-circle-question', label: 'Help' }
+  { id:'dashboard',     href:'dashboard.html',         icon:'fa-house',                  label:'Dashboard' },
+  { id:'transfer',      href:'transfer-internal.html', icon:'fa-arrow-right-arrow-left', label:'Transfers' },
+  { id:'external',      href:'transfer-external.html', icon:'fa-building-columns',       label:'External' },
+  { id:'move',          href:'move-money.html',        icon:'fa-shuffle',                label:'Move money' },
+  { id:'save',          href:'save.html',              icon:'fa-piggy-bank',             label:'Save' },
+  { id:'history',       href:'history.html',           icon:'fa-file-invoice',           label:'History' },
+  { id:'notifications', href:'notifications.html',     icon:'fa-bell',                   label:'Notifications' },
+  { id:'profile',       href:'profile.html',           icon:'fa-user',                   label:'Profile' },
+  { id:'settings',      href:'settings.html',          icon:'fa-gear',                   label:'Settings' },
+  { id:'help',          href:'help.html',              icon:'fa-circle-question',        label:'Help' }
 ];
 
 function stbBootstrapDrawer({ active, onReady }) {
@@ -25,7 +25,7 @@ function stbBootstrapDrawer({ active, onReady }) {
 
 function mountShell(active, user, data) {
   document.body.classList.add('has-sidebar');
-  
+
   /* ---------- SIDEBAR ---------- */
   if (!document.getElementById('stbSidebar')) {
     const aside = document.createElement('aside');
@@ -67,12 +67,12 @@ function mountShell(active, user, data) {
         </a>
       </div>`;
     document.body.insertBefore(aside, document.body.firstChild);
-    
+
     const overlay = document.createElement('div');
     overlay.className = 'stb-sidebar-overlay';
     overlay.id = 'stbSidebarOverlay';
     document.body.insertBefore(overlay, aside.nextSibling);
-    
+
     const close = () => {
       aside.classList.remove('open');
       overlay.classList.remove('open');
@@ -82,7 +82,7 @@ function mountShell(active, user, data) {
     aside.querySelector('#stbAppBtn').addEventListener('click', () =>
       stbToast('Mobile app coming soon.', 'success'));
   }
-  
+
   /* ---------- TOPBAR ---------- */
   let top = document.querySelector('.stb-top');
   if (!top) {
@@ -91,7 +91,7 @@ function mountShell(active, user, data) {
     const main = document.querySelector('main') || document.body;
     main.parentNode.insertBefore(top, main);
   }
-  
+
   top.innerHTML = `
     <div class="stb-top-inner">
       
@@ -121,7 +121,7 @@ function mountShell(active, user, data) {
         </button>
       </div>
     </div>`;
-  
+
   document.getElementById('stbMenuBtn').addEventListener('click', () => {
     document.getElementById('stbSidebar').classList.add('open');
     document.getElementById('stbSidebarOverlay').classList.add('open');
@@ -129,7 +129,7 @@ function mountShell(active, user, data) {
   
   document.getElementById('stbNotifBtn').addEventListener('click', () =>
     location.href = 'notifications.html');
-  
+
   /* Unread dot */
   try {
     db.collection('notifications')
@@ -141,7 +141,7 @@ function mountShell(active, user, data) {
         if (dot) dot.style.display = s.empty ? 'none' : 'block';
       }, () => {});
   } catch (e) {}
-  
+
   /* Search box filter */
   const si = document.getElementById('stbSearchInput');
   if (si && location.pathname.endsWith('history.html')) {
@@ -151,4 +151,37 @@ function mountShell(active, user, data) {
         r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
     });
   }
+}
+
+/* ============================================================
+   UPDATED AUTH GUARD
+   ============================================================ */
+function stbOnAuth(cb) {
+  return auth.onAuthStateChanged(async user => {
+    if (!user) { 
+      location.replace('index.html'); // Redirect to landing page if not logged in
+      return; 
+    }
+    try {
+      const snap = await db.collection(COL.users).doc(user.uid).get();
+      const data = snap.exists ? snap.data() : {};
+      const status = data.status || 'pending';
+      
+      if (status === 'blocked') {
+        await auth.signOut();
+        location.replace('login.html?blocked=1');
+        return;
+      }
+      
+      if (status === 'pending' && !location.pathname.endsWith('pending.html')) {
+        location.replace('pending.html');
+        return;
+      }
+
+      cb(user, data);
+    } catch (e) { 
+      console.error('Auth read error:', e); 
+      cb(user, {}); 
+    }
+  });
 }
