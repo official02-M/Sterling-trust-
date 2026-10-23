@@ -8,58 +8,51 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<header class="stb-top">
-  <div class="stb-top-inner">
-    <a href="index.html" class="stb-brand">
-      <div class="stb-brand-mark"><i class="fas fa-building-columns"></i></div>
-      <div class="stb-brand-text">Sterling <span>Bank</span></div>
-    </a>
-    <a href="login.html" class="btn btn-outline btn-sm">Sign in</a>
-  </div>
-</header>
+<body class="auth-bg">
 
-<main class="narrow" style="max-width:560px;padding-top:34px;padding-bottom:60px;">
-  <div class="card">
-    <h1 style="font-size:1.4rem;margin-bottom:6px;">Open your account</h1>
-    <p class="muted mb-3" style="font-size:.86rem;">Takes less than 2 minutes.</p>
+<div class="card" style="width:100%;max-width:560px;padding:32px 26px;">
+  <a href="index.html" class="stb-brand" style="margin-bottom:22px;">
+    <div class="stb-brand-mark"><i class="fas fa-bolt"></i></div>
+    <div class="stb-brand-text">Sterling <span>Bank</span></div>
+  </a>
+  <h1 style="font-size:1.4rem;margin-bottom:6px;color:var(--ink);">Open your account</h1>
+  <p class="muted mb-3" style="font-size:.86rem;">Takes less than 2 minutes.</p>
 
-    <div class="form-alert" id="err"></div>
+  <div class="form-alert" id="err"></div>
 
-    <form id="signupForm">
-      <div class="field"><label>Full name</label><input id="fullName" required></div>
-      <div class="field-row">
-        <div class="field"><label>Email</label><input id="email" type="email" required></div>
-        <div class="field"><label>Phone</label><input id="phone" type="tel" required></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Date of birth</label><input id="dob" type="date" required></div>
-        <div class="field"><label>State / Region</label><input id="state" placeholder="e.g. California" required></div>
-      </div>
-      <div class="field"><label>Street address</label><input id="street" required></div>
-      <div class="field-row">
-        <div class="field"><label>City</label><input id="city" required></div>
-        <div class="field"><label>ZIP / Postal</label><input id="zip" required></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Password</label><input id="password" type="password" minlength="6" required><div class="hint">At least 6 characters</div></div>
-        <div class="field"><label>Confirm password</label><input id="password2" type="password" required></div>
-      </div>
-      <div class="field">
-        <label>4-digit transaction PIN</label>
-        <input id="pin" inputmode="numeric" pattern="\d{4}" maxlength="4" required>
-        <div class="hint">You'll use this to confirm transfers.</div>
-      </div>
+  <form id="signupForm">
+    <div class="field"><label>Full name</label><input id="fullName" required></div>
+    <div class="field-row">
+      <div class="field"><label>Email</label><input id="email" type="email" required></div>
+      <div class="field"><label>Phone</label><input id="phone" type="tel" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Date of birth</label><input id="dob" type="date" required></div>
+      <div class="field"><label>State / Region</label><input id="state" placeholder="e.g. California" required></div>
+    </div>
+    <div class="field"><label>Street address</label><input id="street" required></div>
+    <div class="field-row">
+      <div class="field"><label>City</label><input id="city" required></div>
+      <div class="field"><label>ZIP / Postal</label><input id="zip" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Password</label><input id="password" type="password" minlength="6" required><div class="hint">At least 6 characters</div></div>
+      <div class="field"><label>Confirm password</label><input id="password2" type="password" required></div>
+    </div>
+    <div class="field">
+      <label>4-digit transaction PIN</label>
+      <input id="pin" inputmode="numeric" pattern="\d{4}" maxlength="4" required>
+      <div class="hint">You'll use this to confirm transfers.</div>
+    </div>
 
-      <button type="submit" class="btn btn-gold btn-lg btn-block" id="submitBtn">
-        <i class="fas fa-user-plus"></i> Create account
-      </button>
-      <p class="center mt-3" style="font-size:.8rem;">
-        Already have an account? <a href="login.html">Sign in</a>
-      </p>
-    </form>
-  </div>
-</main>
+    <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+      <i class="fas fa-user-plus"></i> Create account
+    </button>
+    <p class="center mt-3" style="font-size:.8rem;">
+      Already have an account? <a href="login.html">Sign in</a>
+    </p>
+  </form>
+</div>
 
 <div class="stb-toast" id="stb-toast"></div>
 
@@ -70,6 +63,17 @@
 <script>
 const $ = id => document.getElementById(id);
 const form = $('signupForm'), err = $('err'), btn = $('submitBtn');
+
+// Redirect if already logged in
+auth.onAuthStateChanged(user => {
+  if (user) {
+    if (user.email.toLowerCase() === STB_ADMIN_EMAIL.toLowerCase()) {
+      window.location.replace('admin.html');
+    } else {
+      window.location.replace('dashboard.html');
+    }
+  }
+});
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -98,16 +102,15 @@ form.addEventListener('submit', async e => {
     const uid = cred.user.uid;
     const pinHash = await stbHashPin(pin);
 
-    // user doc
     await db.collection(COL.users).doc(uid).set({
       fullName, email, phone, dob,
       address: { street, city, state, zip },
       pinHash,
-      status: 'approved',   // auto-approved; set 'pending' if you want manual review
+      role: 'customer',
+      status: 'approved', // Change to 'pending' if you want admin approval
       createdAt: FV.serverTimestamp()
     });
 
-    // auto-create checking + savings accounts
     const batch = db.batch();
     const checking = db.collection(COL.accounts).doc();
     batch.set(checking, {
